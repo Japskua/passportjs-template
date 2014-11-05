@@ -71,7 +71,7 @@ router.post('/', function(req, res, next) {
     winston.info("Received login attempt");
 
     passport.authenticate('local', {session : false}, function(err, user, info) {
-        winston.info("Authentication going");
+        winston.info("Authentication going for user", user);
         if(err) {
             return res.send(info);
         }
