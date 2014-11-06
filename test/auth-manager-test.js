@@ -4,8 +4,37 @@
 
 var AuthManager = require('./../js/auth-manager');
 var assert = require('assert');
+var PlayerDb = require('./../js/player-db');
+
 
 describe("Login and Authentication tests", function() {
+
+    var playerDb = new PlayerDb();
+
+    before(function(done) {
+        // Create a new user to database
+        playerDb.Save({username: "koklaus", password: "passu", email: "kokeile@emai.com"}, function (err, result) {
+            if (err) {
+                throw err;
+            }
+            // Done!
+            done();
+        });
+    });
+
+    after(function(done) {
+        // Remove the test user from database
+        playerDb.Remove( { username : "koklaus" }, function(err, result) {
+            if (err) {
+                throw err;
+            }
+
+            assert(result, true);
+            // Things okay!
+            // Done !
+            done();
+        });
+    });
 
     var json = { username : "koklaus" };
 

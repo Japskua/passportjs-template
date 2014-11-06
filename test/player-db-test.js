@@ -40,16 +40,16 @@ describe("Crude authentication test", function() {
 
     });
 
-    it.only("Should update the user hash in the database", function(done) {
+    it("Should update the user hash in the database", function(done) {
 
         var playerDb = new PlayerDb();
-        playerDb.Update( { username : "koklaus"}, function(err, result) {
+        var hash = "399ag9sgmsl";
+        playerDb.Update( { username : "koklaus"}, { hash: hash}, function(err, result) {
 
             if(err) {
                 throw err;
             }
-
-            console.log(result);
+            assert.equal(result.hash, hash);
             // Otherwise, things okay!
             // Done!
             done();
