@@ -9,7 +9,9 @@ var fakedb = require('./../js/fake-db');
 var winston = require('winston');
 var BasicStrategy = require('passport-http').BasicStrategy;
 var LocalStrategy = require('passport-local').Strategy;
+var AuthManager = require('./../js/auth-manager');
 
+/*
 passport.use(new BasicStrategy(
     function(username, password, done) {
         fakedb.findByUsername(username , function (err, user) {
@@ -19,25 +21,29 @@ passport.use(new BasicStrategy(
             return done(null, user);
         });
     }
+));*/
+
+passport.use(new BasicStrategy(
+    function(username, password, done) {
+        new AuthManager().Login( { username : username, password : password } , function (err, user) {
+            winston.info("User logged in:", user);
+            if (err) { return done(err); }
+            if (!user) { return done(null, false); }
+            return done(null, user);
+        });
+    }
 ));
 
 passport.use(new LocalStrategy(
-
     function(username, password, done) {
-
         winston.info('Doing local strategy with username:', username, 'password:', password);
-
-        fakedb.findByUsername(username, function(err, user) {
+        new AuthManager().Login( { username : username, password : password } , function (err, user) {
             if(err) {
                 return done(err);
             }
             if (!user) {
                 return done(null, false, { message: 'Unknown user ' + username});
             }
-            if (user.password !== password) {
-                return done(null, false, { message : 'Invalid Password!'});
-            }
-
             // Everything went okay
             return done(null, user);
         })
@@ -50,7 +56,7 @@ passport.use(new LocalStrategy(
 //   this will be as simple as storing the user ID when serializing, and finding
 //   the user by ID when deserializing.
 passport.serializeUser(function(user, done) {
-    done(null, user.id);
+    done(null, user);
 });
 
 passport.deserializeUser(function(id, done) {
@@ -67,9 +73,7 @@ router.get('/',
 
 
 router.post('/', function(req, res, next) {
-
     winston.info("Received login attempt");
-
     passport.authenticate('local', {session : false}, function(err, user, info) {
         winston.info("Authentication going for user", user);
         if(err) {
