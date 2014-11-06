@@ -2,18 +2,25 @@
  * Created by Janne on 5.11.2014.
  */
 
-var mongojs = require('mongojs');
 var winston = require('winston');
 var mongoose = require('mongoose');
 var Player = require('./playerSchema').Player;
-var connection = mongoose.connect('mongodb://localhost/players');
-var playerDb = mongoose.connection;
+mongoose.connect('mongodb://localhost/players');
 
-
+/**
+ * Just the constructor
+ * @constructor
+ */
 function PlayerDb() {
 
 }
 
+/**
+ * Finds the user from the database
+ * @param {JSON} json JSON string containing the search info
+ * @param {Function} callback Callback function (err, result)
+ * @constructor
+ */
 PlayerDb.prototype.Find = function(json, callback) {
 
     Player.find( json, function(err, player) {
@@ -27,6 +34,12 @@ PlayerDb.prototype.Find = function(json, callback) {
     });
 };
 
+/**
+ * Creates a new user to the database
+ * @param {JSON} json The JSON to use in creation
+ * @param {Function} callback The callback function (err, result)
+ * @constructor
+ */
 PlayerDb.prototype.Save = function(json, callback) {
 
     var player = new Player(json);
@@ -43,12 +56,39 @@ PlayerDb.prototype.Save = function(json, callback) {
     });
 };
 
+/**
+ * Finds the player and updates the information
+ * @param {JSON} searchJson The JSON to use in the search
+ * @param {JSON} updateJson The JSON to use in updating
+ * @param {Function} callback The callback function (err, result)
+ * @constructor
+ */
+PlayerDb.prototype.Update = function(searchJson, updateJson, callback) {
+
+    Player.findOneAndUpdate(searchJson, updateJson, function(err, result) {
+
+        if (err) {
+            callback(err, null);
+        }
+
+        // Things okay!
+        callback(null, result);
+
+    });
+
+};
+
+/**
+ * Removes the user from the database
+ * @param {JSON} json The JSON to use in search
+ * @param {Function} callback The callback function (err, result)
+ * @constructor
+ */
 PlayerDb.prototype.Remove = function(json, callback) {
 
-    var player = new Player(json);
     winston.info("Removing the following player:", json);
 
-    player.remove(json, function(err) {
+    Player.remove(json, function(err) {
         if(err) {
             callback(err, null);
         }

@@ -8,7 +8,8 @@ var Schema = mongoose.Schema;
 var playerSchema = new Schema({
     username : String,
     password : String,
-    email : String
+    email : String,
+    hash : String
 });
 
 var Player = mongoose.model('Player', playerSchema);
